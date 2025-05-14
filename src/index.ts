@@ -29,8 +29,8 @@ client.commands = new Collection();
 client.on("guildMemberAdd", async (member) => {
   const welcomeChannel = member.guild.channels.cache.get(welcomeChannelId);
 
-  const participantRole = "1371166887118901321";
-  await member?.roles.add(participantRole);
+  // const participantRole = "1371166887118901321";
+  // await member?.roles.add(participantRole);
 
   if (welcomeChannel && welcomeChannel.isTextBased()) {
     welcomeChannel.send(
@@ -60,7 +60,7 @@ client.on("messageCreate", async (message) => {
       message.reply(status);
       break;
     case "!testwelcome":
-      const welcomeChannelId = "1366867373788889190";
+      const welcomeChannelId = "1371888209260318820";
       const welcomeChannel =
         message.guild?.channels.cache.get(welcomeChannelId);
       const member = message.member;
@@ -116,15 +116,24 @@ client.on("interactionCreate", async (interaction) => {
         return;
       }
       try {
-        // Create team role
-        const teamRole = await interaction.guild.roles.create({
-          name: `Team-${roomNumber.value}`,
-          mentionable: true,
-          reason: `Team role created for ${interaction.user.username}`,
-        });
+        // Check if the team number is already claimed
+        let teamRole = interaction.guild.roles.cache.find((role) =>
+          role.name.startsWith(`Team-${roomNumber.value}`)
+        );
+        if (teamRole) {
+          await interaction.member?.roles.add(teamRole.id);
+        } else {
+          // Create team role
+          teamRole = await interaction.guild.roles.create({
+            name: `Team-${roomNumber.value}`,
+            mentionable: true,
+            reason: `Team role created for ${interaction.user.username}`,
+          });
 
-        // Assign role to user
-        await interaction.member?.roles.add(teamRole.id);
+          // Assign role to user
+          await interaction.member?.roles.add(teamRole.id);
+        }
+
         // Find or create "My Team" category
         let category = "1371815764482330704";
 
